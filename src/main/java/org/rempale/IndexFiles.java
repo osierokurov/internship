@@ -16,17 +16,12 @@
  */
 package org.rempale;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.Term;
 
 /**
@@ -108,7 +103,7 @@ public class IndexFiles {
                 sb.append(Character.toLowerCase(part.charAt(0)));
             }
         }
-        System.out.println(sb.toString());
+
         return sb.toString();
     }
 }
