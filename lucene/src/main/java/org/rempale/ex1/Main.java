@@ -1,4 +1,4 @@
-package org.rempale;
+package org.rempale.ex1;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -18,8 +18,8 @@ public class Main {
         if (args.length == 0 || args.length > 2) {
             return;
         }
-        Path pathToIndex = Paths.get("src/main/resources/lucence/queryparser/docs/xml/img");
-        Path pathToSaveIndex = Paths.get("src/main/resources/index");
+        Path pathToIndex = Paths.get("lucene/src/main/resources/lucence/queryparser/docs/xml/img");
+        Path pathToSaveIndex = Paths.get("lucene/src/main/resources/index");
         Analyzer analyzer = new PathAnalyzer();
         Analyzer inputAnalyzer = new InputAnalyzer();
         IndexWriterConfig config = new IndexWriterConfig(analyzer);

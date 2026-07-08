@@ -1,15 +1,15 @@
-package org.rempale;
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.LowerCaseFilter;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.ngram.NGramTokenFilter;
-import org.apache.lucene.analysis.pattern.PatternTokenizer;
+package org.rempale.ex1;
 
 import java.util.regex.Pattern;
 
-public class InputAnalyzer extends Analyzer {
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.LowerCaseFilter;
+import org.apache.lucene.analysis.ngram.NGramTokenFilter;
+import org.apache.lucene.analysis.pattern.PatternTokenizer;
+
+public class PathAnalyzer extends Analyzer {
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
@@ -19,8 +19,7 @@ public class InputAnalyzer extends Analyzer {
 
         TokenStream stream = new LowerCaseFilter(tokenizer);
 
-        stream = new NGramTokenFilter(stream, 2, 5, true);
-
+        stream = new NGramTokenFilter(stream, 1, 10, true);
 
         return new TokenStreamComponents(tokenizer, stream);
     }
