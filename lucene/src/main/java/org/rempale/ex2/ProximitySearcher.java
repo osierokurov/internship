@@ -31,10 +31,6 @@ public class ProximitySearcher {
         } else {
             SpanQuery[] clauses = new SpanQuery[words.length];
 
-            for (int i = 0; i < words.length; i++) {
-                clauses[i] = new SpanTermQuery(new Term("content", words[i]));
-            }
-
             //bonuses
             for (int i = 0; i < words.length - 1; i++) {
                 clauses[i] = new SpanTermQuery(new Term("content", words[i]));
@@ -60,7 +56,6 @@ public class ProximitySearcher {
 
         }
 
-        System.out.println(query);
         TopDocs hits = searcher.search(query, 20);
 
         List<String> result = new ArrayList<>();
