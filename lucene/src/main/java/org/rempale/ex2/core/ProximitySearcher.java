@@ -1,12 +1,18 @@
-package org.rempale.ex2;
+package org.rempale.ex2.core;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.*;
+import org.apache.lucene.index.StoredFields;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.spans.SpanMultiTermQueryWrapper;
 import org.apache.lucene.queries.spans.SpanNearQuery;
 import org.apache.lucene.queries.spans.SpanQuery;
 import org.apache.lucene.queries.spans.SpanTermQuery;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.PrefixQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +32,7 @@ public class ProximitySearcher {
 
         Query query;
 
-        if (words.length < 2) {
+        if (isSingleWordQuery(words)) {
             query = new PrefixQuery(new Term("content", words[0]));
         } else {
             SpanQuery[] clauses = new SpanQuery[words.length];
@@ -63,4 +69,7 @@ public class ProximitySearcher {
         return result;
     }
 
+    private boolean isSingleWordQuery(String[] words) {
+        return words.length == 1;
+    }
 }
