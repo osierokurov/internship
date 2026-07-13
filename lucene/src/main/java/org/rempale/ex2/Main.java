@@ -2,61 +2,94 @@ package org.rempale.ex2;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.*;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.rempale.ex1.IndexFiles;
 
-
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.Scanner;
+import org.rempale.ex1.IndexFiles;
 
 public class Main {
+    private final int MAX_RESULTS = 20;
+    private final Scanner scanner = new Scanner(System.in);
+
     void main() throws Exception {
 
         Path pathToIndex = Paths.get("lucene/src/main/resources/lucence/queryparser/docs/text");
         Path pathToSaveIndex = Paths.get("lucene/src/main/resources/textIndex");
+
+        buildIndex(pathToIndex, pathToSaveIndex);
+
+        ProximitySearcher proxSearcher = createSearcher(pathToSaveIndex);
+
+        while (true) {
+            System.out.print("Query + slop (or 'exit'): ");
+
+            Optional<QueryInput> input = nextQuery();
+            if (input.isEmpty()) {
+                break;
+            }
+
+            QueryInput queryInput = input.get();
+
+            for (String fileName : proxSearcher.search(
+                    queryInput.query(),
+                    queryInput.slop(),
+                    MAX_RESULTS)) {
+
+                System.out.println(fileName.substring(fileName.lastIndexOf('/') + 1));
+            }
+        }
+
+    }
+
+    private void buildIndex(Path pathToIndex, Path pathToSaveIndex) throws IOException {
         Analyzer analyzer = new StandardAnalyzer();
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
 
         try (Directory dir = FSDirectory.open(pathToSaveIndex);
              IndexWriter writer = new IndexWriter(dir, config)) {
 
-            IndexFiles indexer = new IndexFiles(pathToIndex, writer);
-            indexer.indexDocs();
+            new IndexFiles(pathToIndex, writer).indexDocs();
+        }
+    }
 
-            IndexReader reader = DirectoryReader.open(FSDirectory.open(pathToSaveIndex));
-            IndexSearcher searcher = new IndexSearcher(reader);
-            ProximitySearcher proxSearcher = new ProximitySearcher(searcher);
+    private ProximitySearcher createSearcher(Path pathToSaveIndex) throws IOException {
+        Directory dir = FSDirectory.open(pathToSaveIndex);
+        IndexReader reader = DirectoryReader.open(dir);
+        IndexSearcher searcher = new IndexSearcher(reader);
 
-            Scanner scanner = new Scanner(System.in);
+        return new ProximitySearcher(searcher);
+    }
 
-            while (true) {
-                System.out.print("Query + slop (or 'exit'): ");
+    private Optional<QueryInput> nextQuery() {
+        while (true) {
+            String line = scanner.nextLine().trim();
 
-                String line = scanner.nextLine();
+            if ("exit".equalsIgnoreCase(line)) {
+                return Optional.empty();
+            }
 
-                if ("exit".equalsIgnoreCase(line)) {
-                    break;
-                }
+            String[] parts = line.split(",", 2);
+            if (parts.length != 2) {
+                System.out.println("Usage: <query>,<slop>");
+                continue;
+            }
 
-                String[] parts = line.split(",", 2);
-
-                if (parts.length != 2) {
-                    System.out.println("Usage: <query> <slop>");
-                    continue;
-                }
-
-                String query = parts[0].trim();
+            try {
                 int slop = Integer.parseInt(parts[1].trim());
-
-               for (String fileName : proxSearcher.search(query, slop)) {
-                   System.out.println(fileName.substring(fileName.lastIndexOf('/') + 1));
-               }
+                return Optional.of(new QueryInput(parts[0].trim(), slop));
+            } catch (NumberFormatException e) {
+                System.out.println("Slop must be an integer.");
             }
         }
-
-        }
+    }
     }

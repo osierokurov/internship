@@ -20,7 +20,7 @@ public class ProximitySearcher {
         this.searcher = searcher;
     }
 
-    public List<String> search(String text, int slop) throws IOException {
+    public List<String> search(String text, int slop, int max_results) throws IOException {
 
         String[] words = text.toLowerCase().split("\\s+");
 
@@ -31,7 +31,6 @@ public class ProximitySearcher {
         } else {
             SpanQuery[] clauses = new SpanQuery[words.length];
 
-            //bonuses
             for (int i = 0; i < words.length - 1; i++) {
                 clauses[i] = new SpanTermQuery(new Term("content", words[i]));
             }
@@ -48,15 +47,9 @@ public class ProximitySearcher {
                     true      // ordered
             );
 
-//            query = new SpanNearQuery(
-//                    clauses,
-//                    slop,
-//                    false      // unordered
-//            );
-
         }
 
-        TopDocs hits = searcher.search(query, 20);
+        TopDocs hits = searcher.search(query, max_results);
 
         List<String> result = new ArrayList<>();
 
