@@ -49,7 +49,7 @@ public class IndexFiles {
      *
      * @throws IOException If there is a low-level I/O error
      */
-    void indexDocs() throws IOException {
+    public void indexDocs() throws IOException {
         if (Files.isDirectory(pathToIndex)) {
             Files.walkFileTree(
                     pathToIndex,
@@ -83,6 +83,9 @@ public class IndexFiles {
         doc.add(new StringField("id", id, Field.Store.YES));
         // Searchable path
         doc.add(new TextField("path", id, Field.Store.NO));
+
+        String content = Files.readString(file);
+        doc.add(new TextField("content", content, Field.Store.NO));
 
         doc.add(new TextField(
                 "abbreviation",
